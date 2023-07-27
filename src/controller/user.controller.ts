@@ -21,6 +21,8 @@ class UserController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  
   public async Login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
@@ -60,7 +62,8 @@ class UserController {
       const tokenValue:string = `${token}`;
       const RefershValue:string = `${refresh}`;
       const RefreshOptions:CookieOptions = {
-        httpOnly: true, // This prevents client-side JavaScript from accessing the cookie.
+        httpOnly: true, 
+        sameSite: 'lax',// This prevents client-side JavaScript from accessing the cookie.
         expires: new Date(Date.now() + 7200000), // Cookie expiration time (1 hour from now).
         // Add any other cookie options as needed.
       };
