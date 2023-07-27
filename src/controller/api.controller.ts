@@ -3,7 +3,7 @@ import {TestAPiModel,TestAPiInterface} from "../models/api.model";
 import axios,{AxiosRequestConfig} from "axios"
 class FetchController{
    public async APifetchroute(req:Request,res:Response):Promise<void>{
-    const {userId,email,name,url,method,payload} = req.body
+    const {userId,email,name,url,method,payload,headers} = req.body
      try {
       let savefetchedData;
       let requestOptions:AxiosRequestConfig;
@@ -14,6 +14,7 @@ class FetchController{
         requestOptions = {
          method: method,
          headers: {
+                ...headers,
            "Content-Type": "application/json",
          },
          data: payload,
@@ -26,6 +27,7 @@ class FetchController{
         requestOptions = {
          method: method,
          headers: {
+          ...headers,
            "Content-Type": "application/json",
          },
          url:url
