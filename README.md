@@ -3,7 +3,7 @@
 
 ## API Testing App Description:
 
-The API testing app you have created is a web application built on the MEAN (MongoDB, Express.js, Angular or React, Node.js) or MERN (MongoDB, Express.js, React, Node.js) stack with TypeScript. This app serves as a powerful tool for testing and validating APIs, allowing developers and testers to perform thorough testing of RESTful API endpoints.
+The API testing app you have created is a web application built on the  MERN (MongoDB, Express.js, React, Node.js) stack with TypeScript. This app serves as a powerful tool for testing and validating APIs, allowing developers and testers to perform thorough testing of RESTful API endpoints.
 
 ## Key Features:
 
