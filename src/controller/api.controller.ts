@@ -49,7 +49,7 @@ class getAllAPidata {
 public  async GetallApisData(req:Request,res:Response):Promise<void>{
     try {
       const data:Array<TestAPiInterface> = await TestAPiModel.find({userId:req.body.userId})
-      res.status(200).send(data)
+      res.status(200).send({data})
     } catch (error:any) {
       res.status(404).send({"msg":error.msg})
     }
