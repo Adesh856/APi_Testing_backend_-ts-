@@ -1,10 +1,10 @@
 import { UserModel, UserInterface } from "../models/user.model";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config()
 import { CookieOptions, Request, Response } from "express";
 import jwt, { Jwt, JwtPayload } from "jsonwebtoken";
-
+import { client } from "../redis";
 
 class UserController {
   public async Register(req: Request, res: Response): Promise<void> {
@@ -57,58 +57,40 @@ class UserController {
         { expiresIn: "2h" }
       );
 
-      const Token:string = 'token';
-      const Refresh:string = "refresh"
-      const tokenValue:string = `${token}`;
-      const RefershValue:string = `${refresh}`;
-      const RefreshOptions:CookieOptions = {
-        httpOnly: true, 
-        sameSite: 'lax',// This prevents client-side JavaScript from accessing the cookie.
-        expires: new Date(Date.now() + 7200000), // Cookie expiration time (1 hour from now).
-        // Add any other cookie options as needed.
-      };
-      const tokenOptions:CookieOptions = {
-        httpOnly: true, // This prevents client-side JavaScript from accessing the cookie.
-        expires: new Date(Date.now() + 3600000), // Cookie expiration time (1 hour from now).
-        // Add any other cookie options as needed.
-      };
-      // Set the cookie in the response.
-      res.cookie(Token, tokenValue, tokenOptions);
-      res.cookie(Refresh, RefershValue, RefreshOptions);
+      client.mset("token",token,"EX",3600,"refresh",refresh,"EX",7200)
+console.log(await client.get("token"),await client.get("refresh"))  //checking
+     
       res.status(200).send({ msg: "Login Successfully", token, refresh });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   }
   public async Logout(req:Request,res:Response):Promise<void> {
+     
      try {
-      res.cookie("token", '', { maxAge: -1 });
-      res.cookie("refresh", '', { maxAge: -1 });
+      client.del(["token","refresh"])
+console.log(await client.get("token"),await client.get("refresh"))  //checking
+
       res.status(201).send({"msg":"Logout Succesfully"})
      } catch (error:any) {
       res.status(500).json({ error: error.message });
      }
   }
   public async  GenrateNewToken(req:Request,res:Response):Promise<void> {
-    const {refresh} = req.cookies
+   const refresh:string= await client.get("refresh")
     try {
-      if(!refresh){
+      if(refresh===null){
         console.log("HereBlacklist")
         res.status(400).send({msg:"Please login"})
     }
     jwt.verify(refresh,`${process.env.JWT_REFRESH_TOKEN_SECRET_KEY}`,(err:any,decoded:any)=>{   
       if(decoded){
     const newToken:string|JsonWebKey = jwt.sign( {userId:decoded._id,email:decoded.email,},`${ process.env.JWT_ACCESS_TOKEN_SECRET_KEY}`,{expiresIn:"1h"})
-    const Token:string = 'token';
-    const tokenValue:string = `${newToken}`;
-    const tokenOptions:CookieOptions = {
-      httpOnly: true, // This prevents client-side JavaScript from accessing the cookie.
-      expires: new Date(Date.now() + 3600000), // Cookie expiration time (1 hour from now).
-      // Add any other cookie options as needed.
-    };
-   res.cookie(Token,tokenValue,tokenOptions)
+      client.set("token",newToken,"EX",3600)
       } 
       })
+console.log(await client.get("token"),await client.get("refresh"))  ///checking
+
       res.status(200).send({"msg":"New token has been set"})
     } catch (error:any) {
       res.status(500).json({ error: error.message });
